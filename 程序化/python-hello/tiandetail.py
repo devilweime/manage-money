@@ -1,8 +1,80 @@
 import requests
 
-def detail(columnFlied,rowData,id) :
-    url = 'http://fund.eastmoney.com/pingzhongdata/'+id+'.js?v=20200721231843'
+import re
+import demjson
+from lxml import etree
+
+fillColumns1 = False
+fillColumns2 = False
+
+
+def detail(columns, rowData, id):
+    detail1(columns, rowData, id)
+    detail2(columns, rowData, id)
+
+
+# # 获取 成立日期、规模等信息
+def detail1(columns, rowData, id):
+    print(rowData[1])
+    url = 'http://fund.eastmoney.com/' + id + '.html'
     resp = requests.get(url)
-    if resp.encoding.upper() != "UTF-8":
-        resp.encoding = 'UTF-8'
-    html = resp.text()
+    resp.encoding = 'UTF-8'
+    html = resp.text
+    tree = etree.HTML(html)
+    tableData = tree.xpath('//*[@id="body"]/div[12]/div/div/div[3]/div[1]/div[2]/table//text()')
+
+    global fillColumns1
+    if fillColumns1 == False:
+        columns.append('基金规模(亿元)')
+        columns.append('成 立 日')
+        columns.append('管 理 人')
+        #columns.append('基金评级')
+        fillColumns1 = True
+    tmp = str(tableData[4])
+    index = tmp.find('亿') - 1
+    size = tmp[1:index]
+    rowData.append(size)
+    rowData.append(str(tableData[8])[1:-1])
+    rowData.append(tableData[11])
+    #rowData.append(tableData[14])
+
+    print(columns)
+    print(rowData)
+
+
+# # 获取 图形数据、经理信息
+def detail2(columns, rowData, id):
+    url = 'http://fund.eastmoney.com/pingzhongdata/' + id + '.js?v=20200722080726'
+    html = requests.get(url).text
+    print(html)
+    pattern = re.compile('var Data_currentFundManager =(\[.*?\]) ;')
+    targetData = re.findall(pattern, html)
+    dataList = demjson.decode(targetData[0])
+
+    global fillColumns2
+    if fillColumns2 == False:
+        columns.append('经理')
+        columns.append('经理任期')
+        columns.append('任期收益')
+        columns.append('同类平均')
+        columns.append('沪深300')
+        columns.append('任期收益环比同类')
+        columns.append('任期收益环比沪深300')
+        fillColumns2 = True
+
+    manager = dataList[0]
+
+    rowData.append(manager['name'])
+    rowData.append(manager['workTime'])
+    p1 = manager['profit']['series'][0]['data'][0]['y']
+    p2 = manager['profit']['series'][0]['data'][1]['y']
+    p3 = manager['profit']['series'][0]['data'][2]['y']
+    rowData.append(p1)
+    rowData.append(p2)
+    rowData.append(p3)
+    rowData.append(p1 / p2)
+    rowData.append(p1 / p3)
+
+    print(columns)
+    print(rowData)
+

@@ -4,6 +4,7 @@ import demjson
 import json
 import pandas as pd
 import time
+import tiandetail as td
 
 response = requests.get(
     # "http://fund.eastmoney.com/data/FundGuideapi.aspx?dt=0&sd=&ed=&sc=3y&st=desc&pi=1&pn=20&zf=diy&sh=list"
@@ -48,6 +49,7 @@ for row in splitData:
     rowData.append(row[19] + '|' + row[22])
     rowData.append(row[20])
     csvData.append(rowData)
+    td.detail(columnFlied, rowData, id)
 
 csv = pd.DataFrame(columns=columnFlied, data=csvData)
 time = time.time()
