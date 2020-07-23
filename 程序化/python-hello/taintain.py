@@ -12,13 +12,15 @@ isFillColumn = False
 # 尝试爬取数据
 def craw():
     pageNum = 1
-    url = 'http://fund.eastmoney.com/data/FundGuideapi.aspx?dt=0&sd=2016-07-23&ed=2020-07-23&pr=120.00,500.00&sc=diy&st=desc&pi=1&pn=20&zf=diy&sh=list&rnd=0.3138604478066571'
+    url = 'http://fund.eastmoney.com/data/FundGuideapi.aspx?dt=0&sd=2016-07-23&ed=2020-07-23&pr=120.00,500.00&sc=diy&st=desc&pi=1&pn=50&zf=diy&sh=list&rnd=0.3138604478066571'
 
     # csv表头
-    csvColumn = []
+    csvColumn = ['代码', '基金名称', '基金类型', '净值', '日增长率', '近1周', '近1月', '近3月', '近6月', '今年来', '近1年', '近2年', '近3年', '手续费',
+                 '购买起点']
     # csv数据集合
     csvData = []
     while (True):
+        print('第' + str(pageNum) + '页')
         regex = re.compile("pi=\d")
         url = regex.sub('pi=' + str(pageNum), url)
         # url = url.replace('pi\d', 'pi' + str(pageNum))
@@ -44,7 +46,7 @@ def craw():
     # 保存到csv
     csv = pd.DataFrame(columns=csvColumn, data=csvData)
     timestamp = time.time()
-    csv.to_csv('D:/garbage/csv/' + str(timestamp) + '.csv')
+    csv.to_csv('G:/garbage/csv/' + str(timestamp) + '.csv')
 
 
 def parseAndFill(datas, csvColumn, csvData):
@@ -54,9 +56,11 @@ def parseAndFill(datas, csvColumn, csvData):
         splitData.append(tmp)
     global isFillColumn
     if isFillColumn == False:
-        csvColumn = ['代码', '基金名称', '基金类型', '净值', '日增长率', '近1周', '近1月', '近3月', '近6月', '今年来', '近1年', '近2年', '近3年', '手续费',
-                     '购买起点']
+
         isFillColumn = True
+
+    if len(csvColumn) == 0:
+        raise Exception('csvColumn 不能为空')
 
     for row in splitData:
         id = row[0]
@@ -79,8 +83,11 @@ def parseAndFill(datas, csvColumn, csvData):
         csvData.append(rowData)
         try:
             td.detail(csvColumn, rowData, id)
-        except:
-            print('处理的id=' + id + '的基金出错')
+        except Exception as err:
+            print(err)
+            exc = Exception('处理的id=' + id + '的基金出错')
+            raise exc
+
 
 # 开始爬虫
 craw()

@@ -40,12 +40,12 @@ def detail1(columns, rowData, id):
         fillColumns1 = True
     tmp = tableData[1]
     index = tmp.find('亿') - 1
-    size = tmp[tmp.find("：")+1:index]
+    size = tmp[tmp.find("：") + 1:index]
     rowData.append(size)
     tmp = tableData[3]
-    rowData.append(tmp[tmp.find("：")+1:-1])
+    rowData.append(tmp[tmp.find("：") + 1:-1])
     tmp = tableData[4]
-    rowData.append(tmp[tmp.find("：")+1:-1])
+    rowData.append(tmp[tmp.find("：") + 1:-1])
     # rowData.append(tableData[14])
 
     print(columns)
@@ -74,22 +74,25 @@ def detail2(columns, rowData, id):
 
     manager = dataList[0]
 
-    try:
-        rowData.append(manager['name'])
-        rowData.append(manager['workTime'])
-        p1 = manager['profit']['series'][0]['data'][0]['y']
-        p2 = manager['profit']['series'][0]['data'][1]['y']
-        p3 = manager['profit']['series'][0]['data'][2]['y']
-        rowData.append(p1)
-        rowData.append(p2)
-        rowData.append(p3)
-        rowData.append(p1 / p2)
-        rowData.append(p1 / p3)
-    except:
-        print('处理的id='+id+'的基金出错')
+    rowData.append(manager['name'])
+    rowData.append(manager['workTime'])
+
+    bar = manager['profit']['series'][0]['data']
+
+    p1 = bar[0]['y']
+    p2 = bar[1]['y']
+    p3 = 0
+    if len(bar) == 3:
+        p3 = bar[2]['y']
+
+    rowData.append(p1)
+    rowData.append(p2)
+    rowData.append(p3)
+    rowData.append(p1 / p2)
+    rowData.append(0) if p3 == 0 else rowData.append(p1 / p3)
 
     print(columns)
     print(rowData)
 
 
-##detail([], [], '519760')
+## detail([], [], '001766')
