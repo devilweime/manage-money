@@ -12,7 +12,7 @@ isFillColumn = False
 # 尝试爬取数据
 def craw():
     pageNum = 1
-    url = 'http://fund.eastmoney.com/data/FundGuideapi.aspx?dt=0&sd=2016-07-23&ed=2020-07-23&pr=120.00,500.00&sc=diy&st=desc&pi=1&pn=50&zf=diy&sh=list&rnd=0.3138604478066571'
+    url = 'http://fund.eastmoney.com/data/FundGuideapi.aspx?dt=0&sd=2017-07-24&ed=2020-07-24&pr=120.00,500.00&sc=diy&st=desc&pi=1&pn=20&zf=diy&sh=list&rnd=0.6813353672857323'
 
     # csv表头
     csvColumn = ['代码', '基金名称', '基金类型', '净值', '日增长率', '近1周', '近1月', '近3月', '近6月', '今年来', '近1年', '近2年', '近3年', '手续费',
@@ -46,7 +46,7 @@ def craw():
     # 保存到csv
     csv = pd.DataFrame(columns=csvColumn, data=csvData)
     timestamp = time.time()
-    csv.to_csv('G:/garbage/csv/' + str(timestamp) + '.csv')
+    csv.to_csv('D:/garbage/csv/' + str(timestamp) + '.csv')
 
 
 def parseAndFill(datas, csvColumn, csvData):

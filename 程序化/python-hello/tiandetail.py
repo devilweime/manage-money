@@ -39,13 +39,13 @@ def detail1(columns, rowData, id):
         # columns.append('基金评级')
         fillColumns1 = True
     tmp = tableData[1]
-    index = tmp.find('亿') - 1
-    size = tmp[tmp.find("：") + 1:index]
+    index = tmp.find('亿')
+    size = tmp[tmp.find("："):index]
     rowData.append(size)
     tmp = tableData[3]
-    rowData.append(tmp[tmp.find("：") + 1:-1])
+    rowData.append(tmp[tmp.find("：")+1:])
     tmp = tableData[4]
-    rowData.append(tmp[tmp.find("：") + 1:-1])
+    rowData.append(tmp[tmp.find("：")+1:])
     # rowData.append(tableData[14])
 
     print(columns)
@@ -94,5 +94,4 @@ def detail2(columns, rowData, id):
     print(columns)
     print(rowData)
 
-
-## detail([], [], '001766')
+detail([], [], '006279')
