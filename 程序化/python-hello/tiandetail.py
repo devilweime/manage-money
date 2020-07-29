@@ -1,3 +1,5 @@
+
+import time
 import requests
 
 import re
@@ -17,7 +19,7 @@ def detail(columns, rowData, id):
 def detail1(columns, rowData, id):
     # print(rowData[1])
     url = 'http://fund.eastmoney.com/' + id + '.html'
-    resp = requests.get(url)
+    resp = requests.get(url, timeout=10000)
     resp.encoding = 'UTF-8'
     html = resp.text
     tree = etree.HTML(html)
@@ -40,22 +42,26 @@ def detail1(columns, rowData, id):
         fillColumns1 = True
     tmp = tableData[1]
     index = tmp.find('亿')
-    size = tmp[tmp.find("："):index]
+
+    size = tmp[tmp.find("：") + 1:index]
     rowData.append(size)
     tmp = tableData[3]
-    rowData.append(tmp[tmp.find("：")+1:])
+    rowData.append(tmp[tmp.find("：") + 1:])
     tmp = tableData[4]
-    rowData.append(tmp[tmp.find("：")+1:])
+    rowData.append(tmp[tmp.find("：") + 1:])
+
+
     # rowData.append(tableData[14])
 
     print(columns)
     print(rowData)
+    time.sleep(1)
 
 
 # # 获取 图形数据、经理信息
 def detail2(columns, rowData, id):
     url = 'http://fund.eastmoney.com/pingzhongdata/' + id + '.js?v=20200722080726'
-    html = requests.get(url).text
+    html = requests.get(url, timeout=10000).text
     print(html)
     pattern = re.compile('var Data_currentFundManager =(\[.*?\]) ;')
     targetData = re.findall(pattern, html)
@@ -94,4 +100,5 @@ def detail2(columns, rowData, id):
     print(columns)
     print(rowData)
 
-detail([], [], '006279')
+#detail([], [], '001766')
+

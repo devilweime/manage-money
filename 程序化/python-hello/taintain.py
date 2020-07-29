@@ -5,6 +5,8 @@ import json
 import pandas as pd
 import time
 import tiandetail as td
+import tianmob as tm
+
 
 isFillColumn = False
 
@@ -12,7 +14,8 @@ isFillColumn = False
 # 尝试爬取数据
 def craw():
     pageNum = 1
-    url = 'http://fund.eastmoney.com/data/FundGuideapi.aspx?dt=0&sd=2017-07-24&ed=2020-07-24&pr=120.00,500.00&sc=diy&st=desc&pi=1&pn=20&zf=diy&sh=list&rnd=0.6813353672857323'
+
+    url ='http://fund.eastmoney.com/data/FundGuideapi.aspx?dt=0&ft=zs&sd=2017-07-29&ed=2020-07-29&pr=60.00,500.00&sc=diy&st=desc&pi=1&pn=20&zf=diy&sh=list&rnd=0.11549012132444236'
 
     # csv表头
     csvColumn = ['代码', '基金名称', '基金类型', '净值', '日增长率', '近1周', '近1月', '近3月', '近6月', '今年来', '近1年', '近2年', '近3年', '手续费',
@@ -24,7 +27,9 @@ def craw():
         regex = re.compile("pi=\d")
         url = regex.sub('pi=' + str(pageNum), url)
         # url = url.replace('pi\d', 'pi' + str(pageNum))
-        response = requests.get(url)
+
+        response = requests.get(url, timeout=10000)
+
         if response.encoding.upper() != "UTF-8":
             response.encoding = "UTF-8"
         html = response.text
@@ -42,11 +47,14 @@ def craw():
         # 解析数据并填充其他部分
         parseAndFill(datas, csvColumn, csvData)
         pageNum += 1
+        time.sleep(6)
 
     # 保存到csv
     csv = pd.DataFrame(columns=csvColumn, data=csvData)
     timestamp = time.time()
+
     csv.to_csv('D:/garbage/csv/' + str(timestamp) + '.csv')
+
 
 
 def parseAndFill(datas, csvColumn, csvData):
@@ -83,6 +91,7 @@ def parseAndFill(datas, csvColumn, csvData):
         csvData.append(rowData)
         try:
             td.detail(csvColumn, rowData, id)
+            tm.craw(csvColumn,rowData,id)
         except Exception as err:
             print(err)
             exc = Exception('处理的id=' + id + '的基金出错')
